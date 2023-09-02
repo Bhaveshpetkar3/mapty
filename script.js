@@ -76,6 +76,7 @@ class App {
     this._getPosition(); //get the posi. as soon as the app loads.
     form.addEventListener('submit', this._newWorkout.bind(this));
     inputType.addEventListener('change', this._toggleElevationField.bind(this));
+    containerWorkouts.addEventListener('click', this._moveToPopup.bind(this));
   }
 
   _getPosition() {
@@ -234,6 +235,22 @@ class App {
           </div>
         </li>`;
     form.insertAdjacentHTML('afterend', html);
+  }
+  _moveToPopup(e) {
+    const workoutEl = e.target.closest('.workout');
+    //console.log(workoutEl);
+    // using the id, we will get the coords
+
+    if (!workoutEl) return;
+
+    const workout = this.#workouts.find(
+      work => work.id === workoutEl.dataset.id
+    );
+    //console.log(this);
+    this.#map.setView(workout.coords, 15, {
+      animate: true,
+      pan: { duration: 1 },
+    });
   }
 }
 const app = new App();
