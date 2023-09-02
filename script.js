@@ -73,7 +73,13 @@ class App {
   #workouts = [];
 
   constructor() {
+    //Get user's position
     this._getPosition(); //get the posi. as soon as the app loads.
+
+    //Get data from Local Storage
+    this._getLocalStorage();
+
+    //Attach Event Handlers
     form.addEventListener('submit', this._newWorkout.bind(this));
     inputType.addEventListener('change', this._toggleElevationField.bind(this));
     containerWorkouts.addEventListener('click', this._moveToPopup.bind(this));
@@ -103,6 +109,9 @@ class App {
     }).addTo(this.#map);
     //Handling clicks on map
     this.#map.on('click', this._showForm.bind(this)); //This is a method coming from leaflet library.
+    this.#workouts.forEach(work => {
+      this._renderWorkoutMarker(work);
+    });
   }
 
   _showForm(mapE) {
@@ -175,6 +184,9 @@ class App {
 
     //  Clear input field +Hide the form
     this._hideForm();
+
+    // Set Local Storage to all workouts
+    this._setLocalStorage();
   }
   _renderWorkoutMarker(workout) {
     L.marker(workout.coords) //to put the marker on the map.
@@ -251,6 +263,24 @@ class App {
       animate: true,
       pan: { duration: 1 },
     });
+  }
+  _setLocalStorage() {
+    localStorage.setItem('workouts', JSON.stringify(this.#workouts));
+  }
+  _getLocalStorage() {
+    const data = JSON.parse(localStorage.getItem('workouts'));
+    //console.log(data);
+    if (!data) return;
+    this.#workouts = data;
+    this.#workouts.forEach(work => {
+      this._renderWorkout(work);
+      //this._renderWorkoutMarker(work);//this will not work bcz the map is not loaded yet and we cannot load the marker without the map being loaded.
+    });
+  }
+  reset()
+  {
+    localStorage.removeItem('workouts');//to flush the local storage
+    location.reload();
   }
 }
 const app = new App();
